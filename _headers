@@ -1,0 +1,16 @@
+# Security headers for static hosting on Cloudflare Pages or Netlify (both read this
+# exact "_headers" file format natively — nothing else to configure).
+#
+# This app makes exactly two kinds of network calls: loading its own same-origin
+# files, and loading pdf.js/pdf-lib from cdn.jsdelivr.net (pinned versions, checked
+# with Subresource Integrity — see index.html / js/app.js). The CSP below only
+# allow-lists those two origins; everything else is denied by default.
+
+/*
+  Content-Security-Policy: default-src 'none'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self'; img-src 'self' data:; connect-src 'self' https://cdn.jsdelivr.net; worker-src 'self' blob:; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; upgrade-insecure-requests
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Resource-Policy: same-origin

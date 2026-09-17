@@ -1,0 +1,10 @@
+# IDE
+.idea/
+
+# OS / filesystem artifacts
+.DS_Store
+Thumbs.db
+*:Zone.Identifier
+
+# Local scratch space used during development
+.devtest/

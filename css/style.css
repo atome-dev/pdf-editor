@@ -1,0 +1,419 @@
+:root {
+  --bg: #f3f4f6;
+  --panel: #ffffff;
+  --border: #e2e4e9;
+  --border-strong: #d0d3da;
+  --text: #1f2430;
+  --text-muted: #6b7280;
+  --accent: #4f46e5;
+  --accent-hover: #4338ca;
+  --accent-contrast: #ffffff;
+  --danger: #e5484d;
+  --canvas-shadow: 0 2px 10px rgba(0,0,0,.12), 0 0 0 1px rgba(0,0,0,.04);
+  --radius: 8px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ============ Toolbar ============ */
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+  z-index: 20;
+}
+
+.toolbar-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.toolbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.toolbar-brand img {
+  display: block;
+  border-radius: 5px;
+}
+
+.toolbar-group-right {
+  margin-left: auto;
+}
+
+.toolbar-sep {
+  width: 1px;
+  align-self: stretch;
+  background: var(--border);
+  margin: 4px 2px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 11px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  background: var(--panel);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background .12s, border-color .12s, color .12s;
+  white-space: nowrap;
+}
+
+.btn svg { width: 16px; height: 16px; flex: none; }
+
+.btn:hover:not(:disabled) { background: #f0f1f5; }
+.btn:disabled { opacity: .4; cursor: not-allowed; }
+
+.btn.icon-only { padding: 7px 9px; }
+
+.btn-accent {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-contrast);
+}
+.btn-accent:hover:not(:disabled) { background: var(--accent-hover); }
+
+.btn-block { width: 100%; justify-content: center; }
+
+.tool-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-contrast);
+}
+
+#zoom-label, #page-label {
+  font-size: 13px;
+  color: var(--text-muted);
+  min-width: 44px;
+  text-align: center;
+}
+
+.opt {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.opt input[type="color"] {
+  width: 26px; height: 26px;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  padding: 0;
+  background: none;
+  cursor: pointer;
+}
+.opt input[type="number"] {
+  width: 54px;
+  padding: 4px 6px;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  font-size: 13px;
+}
+.opt input[type="range"] { width: 90px; }
+
+#tool-options .opt { display: none; }
+#tool-options.show-color [data-for="color"],
+#tool-options.show-fontSize [data-for="fontSize"],
+#tool-options.show-strokeWidth [data-for="strokeWidth"] { display: flex; }
+
+/* ============ Workspace ============ */
+.workspace {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+.thumbnails {
+  width: 168px;
+  flex: none;
+  background: var(--panel);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  gap: 10px;
+  overflow-y: auto;
+}
+
+.thumbnails-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.thumb {
+  position: relative;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  padding: 6px;
+  cursor: pointer;
+  background: #fafafb;
+  transition: border-color .12s;
+}
+.thumb:hover { border-color: var(--border-strong); }
+.thumb.active { border-color: var(--accent); }
+.thumb canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  box-shadow: 0 1px 4px rgba(0,0,0,.15);
+  background: #fff;
+}
+.thumb .thumb-index {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-align: center;
+  margin-top: 4px;
+}
+.thumb.dragging { opacity: .4; }
+.thumb.drag-over { border-color: var(--accent); border-style: dashed; }
+
+.thumb-actions {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: flex;
+  gap: 3px;
+  opacity: 0;
+  transition: opacity .12s;
+}
+.thumb:hover .thumb-actions { opacity: 1; }
+.thumb-actions button {
+  width: 20px; height: 20px;
+  display: flex; align-items: center; justify-content: center;
+  border: none;
+  border-radius: 4px;
+  background: rgba(0,0,0,.55);
+  color: #fff;
+  cursor: pointer;
+  padding: 0;
+  font-size: 12px;
+  line-height: 1;
+}
+.thumb-actions button:hover { background: rgba(0,0,0,.8); }
+.thumb-actions svg { width: 12px; height: 12px; }
+
+.viewer {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.page-scroll {
+  height: 100%;
+  overflow: auto;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 30px;
+}
+
+.page-wrap {
+  position: relative;
+  background: #fff;
+  box-shadow: var(--canvas-shadow);
+  flex: none;
+}
+
+.page-wrap canvas {
+  display: block;
+}
+
+.annotation-layer {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform-origin: center center;
+  overflow: visible;
+  pointer-events: none; /* clicks pass through to the canvas so tools can create annotations */
+}
+
+.annotation-layer svg.draw-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* ============ Annotations ============ */
+.ann {
+  position: absolute;
+  cursor: move;
+  pointer-events: auto;
+}
+.ann.selected { outline: 1.5px dashed var(--accent); }
+
+.ann-text {
+  min-width: 20px;
+  min-height: 1em;
+  padding: 1px 2px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  outline: none;
+  cursor: text;
+}
+.ann-text:focus { background: rgba(79,70,229,.06); }
+
+.ann-highlight {
+  mix-blend-mode: multiply;
+  border-radius: 2px;
+}
+
+.ann-rect {
+  background: transparent;
+}
+
+.ann-image {
+  cursor: move;
+}
+.ann-image img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+  user-select: none;
+}
+
+.ann-delete {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--danger);
+  color: #fff;
+  border: 2px solid #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 5;
+}
+
+.ann-drag {
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  border: 2px solid #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  z-index: 5;
+}
+.ann-drag:active { cursor: grabbing; }
+.ann-drag svg { width: 12px; height: 12px; }
+
+.ann-resize {
+  position: absolute;
+  bottom: -6px;
+  right: -6px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid #fff;
+  cursor: nwse-resize;
+  z-index: 5;
+}
+
+/* ============ Empty state ============ */
+.empty-state[hidden] {
+  display: none;
+}
+
+.empty-state {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  color: var(--text-muted);
+  text-align: center;
+  z-index: 1;
+}
+.empty-state svg { color: var(--border-strong); }
+.empty-state p { margin: 0; line-height: 1.5; }
+
+.viewer.drag-active .empty-state {
+  color: var(--accent);
+}
+.viewer.drag-active::after {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  border: 2px dashed var(--accent);
+  border-radius: 10px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ============ Toast (error / warning banner) ============ */
+.toast {
+  position: fixed;
+  top: 66px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-12px);
+  max-width: min(560px, calc(100vw - 32px));
+  padding: 12px 16px;
+  background: #dc2626;
+  color: #fff;
+  font-size: 13.5px;
+  line-height: 1.45;
+  border-radius: 8px;
+  box-shadow: 0 6px 20px rgba(0,0,0,.25);
+  z-index: 100;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .18s ease, transform .18s ease;
+}
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}

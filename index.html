@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Éditeur PDF</title>
+<link rel="icon" type="image/png" href="img/favicon.png" sizes="512x512">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/popup.css">
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ============ TOOLBAR ============ -->
+  <header class="toolbar">
+    <div class="toolbar-brand">
+      <img src="img/favicon.png" alt="" width="26" height="26">
+      <span>Éditeur PDF</span>
+    </div>
+
+    <div class="toolbar-sep"></div>
+
+    <div class="toolbar-group">
+      <button id="btn-open" class="btn" title="Ouvrir un PDF">
+        <svg viewBox="0 0 24 24"><path d="M4 4h9l5 5v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M13 4v5h5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+        <span>Ouvrir</span>
+      </button>
+      <button id="btn-save" class="btn btn-accent" title="Enregistrer le PDF édité" disabled>
+        <svg viewBox="0 0 24 24"><path d="M5 4h11l3 3v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 4v5h7V4M7 14h10v6H7z" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+        <span>Enregistrer</span>
+      </button>
+    </div>
+
+    <div class="toolbar-sep"></div>
+
+    <div class="toolbar-group" id="tool-group">
+      <button class="btn tool-btn active" data-tool="select" title="Sélectionner / Déplacer">
+        <svg viewBox="0 0 24 24"><path d="M5 3l14 7-6 2-2 6-6-15z" fill="currentColor"/></svg>
+      </button>
+      <button class="btn tool-btn" data-tool="text" title="Ajouter du texte">
+        <svg viewBox="0 0 24 24"><path d="M5 5h14M12 5v14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+      <button class="btn tool-btn" data-tool="draw" title="Dessiner à main levée">
+        <svg viewBox="0 0 24 24"><path d="M4 20l1-4L16 5l3 3L8 19l-4 1z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+      </button>
+      <button class="btn tool-btn" data-tool="highlight" title="Surligner">
+        <svg viewBox="0 0 24 24"><path d="M6 15l7-7 3 3-7 7H6v-3z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M4 20h9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+      <button class="btn tool-btn" data-tool="rect" title="Rectangle">
+        <svg viewBox="0 0 24 24"><rect x="4" y="6" width="16" height="12" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+      </button>
+      <button class="btn tool-btn" data-tool="image" title="Insérer une image">
+        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="9" cy="10" r="1.8" fill="currentColor"/><path d="M4 17l5-5 4 4 3-3 4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+
+    <div class="toolbar-sep"></div>
+
+    <div class="toolbar-group" id="tool-options">
+      <label class="opt" data-for="color">
+        <span>Couleur</span>
+        <input type="color" id="opt-color" value="#e53935">
+      </label>
+      <label class="opt" data-for="fontSize">
+        <span>Taille</span>
+        <input type="number" id="opt-fontsize" value="16" min="6" max="96" step="1">
+      </label>
+      <label class="opt" data-for="strokeWidth">
+        <span>Épaisseur</span>
+        <input type="range" id="opt-strokewidth" value="3" min="1" max="20" step="1">
+      </label>
+    </div>
+
+    <div class="toolbar-sep"></div>
+
+    <div class="toolbar-group">
+      <button id="btn-undo" class="btn icon-only" title="Annuler (Ctrl+Z)" disabled>
+        <svg viewBox="0 0 24 24"><path d="M9 7L4 12l5 5M4 12h11a5 5 0 0 1 0 10h-1" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button id="btn-redo" class="btn icon-only" title="Rétablir (Ctrl+Y)" disabled>
+        <svg viewBox="0 0 24 24"><path d="M15 7l5 5-5 5M20 12H9a5 5 0 0 0 0 10h1" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+
+    <div class="toolbar-sep"></div>
+
+    <div class="toolbar-group">
+      <button id="btn-zoom-out" class="btn icon-only" title="Zoom arrière">−</button>
+      <span id="zoom-label">100%</span>
+      <button id="btn-zoom-in" class="btn icon-only" title="Zoom avant">+</button>
+    </div>
+
+    <div class="toolbar-group toolbar-group-right">
+      <button id="btn-prev-page" class="btn icon-only" title="Page précédente">‹</button>
+      <span id="page-label">0 / 0</span>
+      <button id="btn-next-page" class="btn icon-only" title="Page suivante">›</button>
+    </div>
+
+    <div class="toolbar-group">
+      <button type="button" class="btn-info" id="btn-open-info" aria-haspopup="dialog" aria-controls="info-modal" title="À propos de cet éditeur PDF">?</button>
+    </div>
+  </header>
+
+  <!-- ============ WORKSPACE ============ -->
+  <main class="workspace">
+    <aside class="thumbnails" id="thumbnails">
+      <div class="thumbnails-list" id="thumbnails-list"></div>
+      <button id="btn-add-page" class="btn btn-block" title="Ajouter une page blanche" disabled>+ Page</button>
+    </aside>
+
+    <section class="viewer" id="viewer">
+      <div class="empty-state" id="empty-state">
+        <svg viewBox="0 0 24 24" width="56" height="56"><path d="M4 4h9l5 5v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M13 4v5h5" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>
+        <p>Glissez-déposez un fichier PDF ici<br>ou</p>
+        <button id="btn-open-empty" class="btn btn-accent">Choisir un fichier</button>
+      </div>
+      <div class="page-scroll" id="page-scroll">
+        <div class="page-wrap" id="page-wrap" hidden>
+          <canvas id="pdf-canvas"></canvas>
+          <div class="annotation-layer" id="annotation-layer"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <input type="file" id="file-input" accept="application/pdf" hidden>
+  <input type="file" id="image-input" accept="image/png,image/jpeg" hidden>
+
+  <div id="toast" class="toast" role="alert" hidden></div>
+
+  <div id="info-modal" class="modal-overlay" aria-hidden="true" role="dialog" aria-labelledby="modal-title">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modal-title">À propos de cet éditeur PDF</h2>
+        <button type="button" class="modal-close" id="btn-close-info" aria-label="Fermer la boîte de dialogue">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="info-section">
+          <h3>👨‍💻 Auteur &amp; Licence</h3>
+          <p>Développé par <strong>Nicolas Chauvet, Atome Dev</strong>.</p>
+          <p>
+            Ce projet est libre et <strong>Open Source</strong> sous licence
+            <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener noreferrer">MIT</a>.
+          </p>
+        </div>
+
+        <div class="info-section">
+          <h3>🐙 Code source &amp; Dépôt GitHub</h3>
+          <p>Le code source complet est disponible publiquement sur GitHub :</p>
+          <p>
+            👉 <a href="https://github.com/atome-dev/pdf-editor" target="_blank" rel="noopener noreferrer" class="github-link">github.com/atome-dev/pdf-editor</a>
+          </p>
+        </div>
+
+        <div class="info-section">
+          <h3>📚 Bibliothèques utilisées</h3>
+          <p>
+            Le rendu des PDF est assuré par
+            <a href="https://github.com/mozilla/pdf.js" target="_blank" rel="noopener noreferrer">pdf.js</a> (Mozilla),
+            l'édition et l'export par
+            <a href="https://github.com/Hopding/pdf-lib" target="_blank" rel="noopener noreferrer">pdf-lib</a>.
+          </p>
+          <p>Tout le traitement a lieu dans votre navigateur : aucun fichier n'est envoyé à un serveur.</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-modal-action" id="btn-close-info-footer">Fermer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--
+  Dependency loading, pinned to exact audited versions with Subresource Integrity (SRI):
+  - pdfjs-dist 6.3.289 (patches CVE-2024-4367, arbitrary JS execution via crafted fonts).
+    v6 ships ES modules only, so it is loaded as a module and bridged onto window.pdfjsLib.
+    The <script type="module" src=... integrity=...> tag below performs the verified fetch;
+    js/boot-pdfjs.js then re-imports the *same URL*, which reuses that already-verified
+    module record instead of fetching it again (per the HTML module map).
+  - pdf-lib 1.17.1 (latest available; no known CVE at time of writing) loaded as a classic
+    script with integrity as well.
+  All first-party scripts live in external .js files (none inline) so the deployed CSP's
+  script-src can stay strict, with no 'unsafe-inline'. See js/app.js for a second, independent
+  integrity check on the pdf.js *worker* script, which cannot be covered by a declarative
+  `integrity` attribute (Worker() has no such option).
+-->
+<script
+  type="module"
+  src="https://cdn.jsdelivr.net/npm/pdfjs-dist@6.3.289/build/pdf.min.mjs"
+  integrity="sha384-z3N/QnTq7KUG0r5jEmpE9EQ2Yw9XQxeHTtq/XWs9uR7UDmdiZAI2xGZ7t151ou8z"
+  crossorigin="anonymous"
+></script>
+<script type="module" src="js/boot-pdfjs.js"></script>
+<script
+  src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"
+  integrity="sha384-weMABwrltA6jWR8DDe9Jp5blk+tZQh7ugpCsF3JwSA53WZM9/14PjS5LAJNHNjAI"
+  crossorigin="anonymous"
+></script>
+<script src="js/boot-app.js"></script>
+</body>
+</html>
