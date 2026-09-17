@@ -1,0 +1,11 @@
+# Cloudflare Workers Static Assets exclude list (syntaxe .gitignore).
+# Contrairement à Cloudflare Pages, Workers static assets n'exclut RIEN par défaut :
+# sans ce fichier, tout ce qui se trouve dans le dossier de build (y compris .git/)
+# est servi publiquement. Voir https://developers.cloudflare.com/workers/static-assets/
+
+.git/
+.gitignore
+.assetsignore
+wrangler.jsonc
+wrangler.toml
+.wrangler/
