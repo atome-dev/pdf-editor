@@ -62,7 +62,7 @@ const state = {
   currentIndex: 0,         // index into state.pages
   zoom: 1,
   tool: "select",
-  options: { color: "#e53935", fontSize: 16, strokeWidth: 3 },
+  options: { color: "#000000", fontSize: 14, strokeWidth: 3 },
   selectedId: null,
   history: [],
   future: [],
