@@ -945,6 +945,11 @@ function setTool(tool) {
   if (tool === "text") el.toolOptions.classList.add("show-fontSize");
   if (["draw", "rect"].includes(tool)) el.toolOptions.classList.add("show-strokeWidth");
   el.pageWrap.style.cursor = tool === "select" ? "default" : "crosshair";
+  // En mode select, le doigt doit pouvoir faire défiler/zoomer la page (geste tactile natif).
+  // Dans tout autre mode, un glissé sur la page crée une annotation (texte, dessin,
+  // surlignage, rectangle, image) : sans ceci, un doigt qui glisse fait défiler la page
+  // au lieu de dessiner, car le navigateur intercepte le geste avant les pointerevents.
+  el.pageWrap.style.touchAction = tool === "select" ? "auto" : "none";
 }
 
 el.toolGroup.addEventListener("click", (e) => {
